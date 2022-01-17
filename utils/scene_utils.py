@@ -140,9 +140,12 @@ class SceneManager:
     """Returns an array of camera positions."""
     return np.stack([camera.position for camera in self.camera_list])
 
+  def path_to_image(self, image_id) -> Path:
+    return self.image_path / f'{image_id}.png'
+
   def load_image(self, image_id):
     """Loads the image with the specified image_id."""
-    path = self.image_path / f'{image_id}.png'
+    path = self.path_to_image(image_id)
     with path.open('rb') as f:
       return imageio.imread(f)
 

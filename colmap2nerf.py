@@ -27,7 +27,7 @@ output_dir = Path(args.output)
 # Interpret scene
 
 scene_manager = SceneManager.from_pycolmap(cameras_dir, images_dir, min_track_length=5)
-# scene_manager.filter_out_blurry_images()
+scene_manager.filter_out_blurry_images()
 
 # Compute scene and camera properties
 
@@ -117,9 +117,9 @@ camera_dir = output_dir / 'camera'
 camera_dir.mkdir(exist_ok=True, parents=True)
 
 for item_id, camera in scene_manager.camera_dict.items():
-  camera_path = camera_dir / f'{item_id}.json'
-  with camera_path.open('w') as f:
-    json.dump(camera.to_json(), f, indent=2)
+    camera_path = camera_dir / f'{item_id}.json'
+    with camera_path.open('w') as f:
+        json.dump(camera.to_json(), f, indent=2)
 
 print(f'Saved cameras to {camera_dir}')
 
@@ -128,31 +128,42 @@ print(f'Saved cameras to {camera_dir}')
 test_camera_dir = output_dir / 'camera-paths'
 
 for test_path_name, test_cameras in camera_paths.items():
-  out_dir = test_camera_dir / test_path_name
-  out_dir.mkdir(exist_ok=True, parents=True)
-  for i, camera in enumerate(test_cameras):
-    camera_path = out_dir / f'{i:06d}.json'
-    with camera_path.open('w') as f:
-      json.dump(camera.to_json(), f, indent=2)
+    out_dir = test_camera_dir / test_path_name
+    out_dir.mkdir(exist_ok=True, parents=True)
+    for i, camera in enumerate(test_cameras):
+        camera_path = out_dir / f'{i:06d}.json'
+        with camera_path.open('w') as f:
+            json.dump(camera.to_json(), f, indent=2)
 
 print(f'Saved camera paths to {test_camera_dir}')
 
+# Copy images to nerfies project
+
+output_image_dir = output_dir / 'rgb/1x'
+output_image_dir.mkdir(exist_ok=True, parents=True)
+
+for image_id in scene_manager.image_ids:
+    img_path = scene_manager.path_to_image(image_id)
+    shutil.copy(img_path, output_image_dir)
+
+print(f'Saved images to {output_image_dir}')
+
 # Visualize scene (optional)
 
-import jax
-from jax import numpy as jnp
 
 def scatter_points(points, size=2):
-  return go.Scatter3d(
-    x=points[:, 0],
-    y=points[:, 1],
-    z=points[:, 2],
-    mode='markers',
-    marker=dict(size=size),
-  )
+    return go.Scatter3d(
+        x=points[:, 0],
+        y=points[:, 1],
+        z=points[:, 2],
+        mode='markers',
+        marker=dict(size=size),
+    )
 
 display_scene = False
 if display_scene:
+    import jax
+    from jax import numpy as jnp
     camera = scene_manager.camera_list[0]
     near_points = camera.pixels_to_points(camera.get_pixel_centers()[::8, ::8], jnp.array(near)).reshape((-1, 3))
     far_points = camera.pixels_to_points(camera.get_pixel_centers()[::8, ::8], jnp.array(far)).reshape((-1, 3))
