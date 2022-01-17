@@ -118,9 +118,10 @@ camera_dir.mkdir(exist_ok=True, parents=True)
 
 for item_id, camera in scene_manager.camera_dict.items():
   camera_path = camera_dir / f'{item_id}.json'
-  print(f'Saving camera to {camera_path!s}')
   with camera_path.open('w') as f:
     json.dump(camera.to_json(), f, indent=2)
+
+print(f'Saved cameras to {camera_dir}')
 
 # Save test cameras
 
@@ -131,10 +132,10 @@ for test_path_name, test_cameras in camera_paths.items():
   out_dir.mkdir(exist_ok=True, parents=True)
   for i, camera in enumerate(test_cameras):
     camera_path = out_dir / f'{i:06d}.json'
-    print(f'Saving camera to {camera_path!s}')
     with camera_path.open('w') as f:
       json.dump(camera.to_json(), f, indent=2)
 
+print(f'Saved camera paths to {test_camera_dir}')
 
 # Visualize scene (optional)
 
