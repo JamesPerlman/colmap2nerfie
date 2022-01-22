@@ -144,8 +144,10 @@ output_image_dir.mkdir(exist_ok=True, parents=True)
 
 for image_id in scene_manager.image_ids:
     img_path = scene_manager.path_to_image(image_id)
-    if not img_path.exists():
+    output_image_path = output_image_dir / img_path.name
+    if not output_image_path.exists():
         shutil.copy(img_path, output_image_dir)
+        print(f"Saved {output_image_path}")
 
 print(f'Saved images to {output_image_dir}')
 
